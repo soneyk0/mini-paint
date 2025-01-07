@@ -4,7 +4,7 @@ import router from '../appRoutes/router.ts'
 import { collection, addDoc } from 'firebase/firestore'
 import { db } from '../main.ts'
 import { getAuth } from 'firebase/auth'
-import Input from '../common/Input.vue'
+import Input from '../common/BaseInput.vue'
 import { toast } from 'vue3-toastify'
 
 const canvas = ref<HTMLCanvasElement | null>(null)
@@ -337,7 +337,7 @@ const goToHome = () => {
 
 .editor__button:hover {
   background-color: var(--primary);
-  border-color: #62b4ff;
+  border-color: var(--border-color);
   box-shadow: 0 4px 10px rgba(98, 180, 255, 0.2);
 }
 

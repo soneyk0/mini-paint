@@ -5,7 +5,8 @@
   --white:#fff;
   --black:#333;
   --red:darkred;
-  --bg-color:#edfffc
+  --bg-color:#edfffc;
+  --border-color:#62b4ff
 }
 
 .dark-theme {
@@ -15,6 +16,7 @@
   --black: #333;
   --red: darkred;
   --bg-color: #FFDEAD;
+  --border-color:orangered
 }
 
 

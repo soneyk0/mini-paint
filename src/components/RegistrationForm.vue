@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {ref} from 'vue'
-import {toast} from 'vue3-toastify'
+import { ref } from 'vue'
+import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
-import {getAuth, createUserWithEmailAndPassword} from 'firebase/auth'
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import router from '../appRoutes/router.js'
-import AuthForm from "./AuthForm.vue";
-import Button from "../common/Button.vue";
+import AuthForm from '../common/BaseForm.vue'
+import Button from '../common/BaseButton.vue'
 
 const email = ref('')
 const password = ref('')
@@ -18,84 +18,88 @@ function register() {
     return
   }
   createUserWithEmailAndPassword(getAuth(), email.value, password.value)
-      .then(() => {
-        router.push('/mini-paint')
-      })
-      .catch((error) => {
-        if (error.code === 'auth/invalid-email') {
-          toast.error('Incorrect email.', {
-            autoClose: 3000,
-            position: 'bottom-left',
-            theme: 'colored',
-          })
-        } else if (error.code === 'auth/weak-password') {
-          toast.error('Password should be at least 6 characters.', {
-            autoClose: 3000,
-            position: 'bottom-left',
-            theme: 'colored',
-          })
-        } else if (error.code === 'auth/email-already-in-use') {
-          toast.error('This email is already in use', {
-            autoClose: 3000,
-            position: 'bottom-left',
-            theme: 'colored',
-          })
-        } else {
-          toast.error('An unexpected error occurred.', {
-            autoClose: 3000,
-            position: 'bottom-left',
-            theme: 'colored',
-          })
-        }
-      })
+    .then(() => {
+      router.push('/mini-paint')
+    })
+    .catch((error) => {
+      if (error.code === 'auth/invalid-email') {
+        toast.error('Incorrect email.', {
+          autoClose: 3000,
+          position: 'bottom-left',
+          theme: 'colored',
+        })
+      } else if (error.code === 'auth/weak-password') {
+        toast.error('Password should be at least 6 characters.', {
+          autoClose: 3000,
+          position: 'bottom-left',
+          theme: 'colored',
+        })
+      } else if (error.code === 'auth/email-already-in-use') {
+        toast.error('This email is already in use', {
+          autoClose: 3000,
+          position: 'bottom-left',
+          theme: 'colored',
+        })
+      } else {
+        toast.error('An unexpected error occurred.', {
+          autoClose: 3000,
+          position: 'bottom-left',
+          theme: 'colored',
+        })
+      }
+    })
 }
 </script>
 
 <template>
-  <AuthForm title="Sign up"
-            :onSubmit="register"
-            :errorMessage="errorMessage">
+  <AuthForm title="Sign up" :onSubmit="register" :errorMessage="errorMessage">
     <template #inputs>
-          <div class="register-form__email">
-            <p class="register-form__nameOfInput">Email</p>
-            <input
-                type="email"
-                class="register-form__input"
-                placeholder="Enter email"
-                v-model="email"
-            />
-          </div>
-          <div class="register-form__password">
-            <p class="register-form__nameOfInput">Password</p>
-            <input
-                type="password"
-                class="register-form__input"
-                placeholder="Enter password"
-                v-model="password"
-            />
-          </div>
-          <div class="register-form__password">
-            <p class="register-form__nameOfInput">Confirm password</p>
-            <input
-                type="password"
-                class="register-form__input"
-                placeholder="Enter password"
-                v-model="confirmPassword"
-            />
-          </div>
+      <div class="register-form__email">
+        <p class="register-form__nameOfInput">Email</p>
+        <input
+          type="email"
+          class="register-form__input"
+          placeholder="Enter email"
+          v-model="email"
+        />
+      </div>
+      <div class="register-form__password">
+        <p class="register-form__nameOfInput">Password</p>
+        <input
+          type="password"
+          class="register-form__input"
+          placeholder="Enter password"
+          v-model="password"
+        />
+      </div>
+      <div class="register-form__password">
+        <p class="register-form__nameOfInput">Confirm password</p>
+        <input
+          type="password"
+          class="register-form__input"
+          placeholder="Enter password"
+          v-model="confirmPassword"
+        />
+      </div>
     </template>
     <template #footer>
-      <Button :button-text="'Sing up'" :button-width="90" :button-padding="15" class="register-form__button"/>
+      <Button
+        :button-text="'Sing up'"
+        :button-width="90"
+        :button-padding="15"
+        class="register-form__button"
+      />
       <p class="register-form__infoText">
         Already have an account?
-        <router-link to="/mini-paint/login" class="register-form__link">Sing in</router-link>
+        <router-link to="/mini-paint/login" class="register-form__link"
+          >Sing in</router-link
+        >
       </p>
     </template>
   </AuthForm>
 </template>
 
 <style scoped>
-
 h1 {
   text-align: center;
   font-size: 32px;
@@ -135,7 +139,6 @@ h1 {
   margin: 25px auto 0;
   font-size: 18px;
 }
-
 
 .register-form__infoText {
   text-align: center;

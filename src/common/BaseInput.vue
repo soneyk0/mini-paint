@@ -24,7 +24,7 @@ const updateValue = (event: Event) => {
 
 <style scoped>
 input{
-  border: 2px solid var(--white);
+  border: 3px solid var(--white);
   border-radius: 8px;
   padding: 5px 10px;
   font-size: 14px;
@@ -37,13 +37,11 @@ input{
 input:focus{
   outline: none;
   border-color: var(--secondary);
-  box-shadow: 0 0 0 3px rgba(98, 180, 255, 0.2);
 }
 
 input:hover{
   outline: none;
-  border-color: #62b4ff;
-  box-shadow: 0 0 0 3px rgba(98, 180, 255, 0.2);
+  border-color: var(--border-color);
 }
 
 input::-webkit-outer-spin-button {

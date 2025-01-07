@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Button from './common/Button.vue'
+import Button from './common/BaseButton.vue'
 
 const changeTheme = () => {
   document.body.classList.toggle('dark-theme')

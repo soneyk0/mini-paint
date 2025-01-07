@@ -4,8 +4,8 @@ import { ref } from 'vue'
 import router from '../appRoutes/router.ts'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
-import AuthForm from "./AuthForm.vue";
-import Button from "../common/Button.vue";
+import AuthForm from '../common/BaseForm.vue'
+import Button from '../common/BaseButton.vue'
 
 const email = ref('')
 const password = ref('')
@@ -14,52 +14,59 @@ const errorMessage = ref('')
 function signIn() {
   const auth = getAuth()
   signInWithEmailAndPassword(auth, email.value, password.value)
-      .then(() => {
-        router.push('/mini-paint/')
+    .then(() => {
+      router.push('/mini-paint/')
+    })
+    .catch(() => {
+      toast.error('Incorrect email or password', {
+        autoClose: 3000,
+        position: 'bottom-left',
+        theme: 'colored',
       })
-      .catch(() => {
-        toast.error('Incorrect email or password', {
-          autoClose: 3000,
-          position: 'bottom-left',
-          theme: 'colored',
-        })
-      })
+    })
 }
 </script>
 
 <template>
-  <AuthForm title="Sign in"
-            :onSubmit="signIn"
-            :errorMessage="errorMessage">
+  <AuthForm title="Sign in" :onSubmit="signIn" :errorMessage="errorMessage">
     <template #inputs>
       <div class="auth-form__email">
         <p class="auth-form__nameOfInput">Email</p>
         <input
-            type="email"
-            class="auth-form__input"
-            placeholder="Enter email"
-            v-model="email"
+          type="email"
+          class="auth-form__input"
+          placeholder="Enter email"
+          v-model="email"
         />
       </div>
       <div class="auth-form__password">
         <p class="auth-form__nameOfInput">Password</p>
         <input
-            type="password"
-            class="auth-form__input"
-            placeholder="Enter password"
-            v-model="password"
+          type="password"
+          class="auth-form__input"
+          placeholder="Enter password"
+          v-model="password"
         />
       </div>
     </template>
     <template #footer>
-      <Button :button-text="'Sign in'" :button-width="90" :button-padding="15" class="auth-form__button"/>
-      <p class="auth-form__infoText">Don't have an account? <router-link to="/mini-paint/signup" class="auth-form__link">Sign up</router-link></p>
+      <Button
+        :button-text="'Sign in'"
+        :button-width="90"
+        :button-padding="15"
+        class="auth-form__button"
+      />
+      <p class="auth-form__infoText">
+        Don't have an account?
+        <router-link to="/mini-paint/signup" class="auth-form__link"
+          >Sign up</router-link
+        >
+      </p>
     </template>
-    </AuthForm>
+  </AuthForm>
 </template>
 
 <style scoped>
-
 h1 {
   text-align: center;
   font-size: 32px;
@@ -95,7 +102,7 @@ h1 {
   outline: var(--primary);
 }
 
-.auth-form__button{
+.auth-form__button {
   display: block;
   margin: 25px auto 0;
   font-size: 18px;
@@ -115,8 +122,4 @@ h1 {
   color: var(--secondary);
   text-decoration: underline;
 }
-
-
-
-
 </style>

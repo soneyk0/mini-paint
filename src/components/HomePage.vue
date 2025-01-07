@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { getAuth, signOut } from 'firebase/auth'
 import router from '../appRoutes/router.js'
-import Button from '../common/Button.vue'
+import Button from '../common/BaseButton.vue'
 import { computed, onMounted, ref } from 'vue'
 import { db } from '../main.ts'
 import { collection, query, getDocs } from 'firebase/firestore'
-import Input from '../common/Input.vue'
+import Input from '../common/BaseInput.vue'
 
 const images = ref<{ data: string; email: string; timestamp: string }[]>([])
 const usersEmail = ref<string[]>([])
 const filteredImages = ref<
   { data: string; email: string; timestamp: string }[]
 >([])
+const itemsPerPage = 6
+let currentPage = ref(1)
 const selectedUser = ref<string | null>(null)
 const showDropdown = ref(false)
-let currentPage = ref(1)
-const itemsPerPage = 8
 
 onMounted(async () => {
   const q = query(collection(db, 'canvas_images'))
@@ -81,6 +81,7 @@ const handleNextPage = () => {
     currentPage.value++
   }
 }
+
 const handleClickOutside = (event: MouseEvent) => {
   const dropdown = document.querySelector('.dropdown')
   if (dropdown && !dropdown.contains(event.target as Node)) {
@@ -139,33 +140,34 @@ const handleClickOutside = (event: MouseEvent) => {
         </div>
       </div>
       <p v-else>No images available.</p>
-      <div class="menu__pagination" v-if="totalPages">
-        <Button
-          :button-width="10"
-          :button-padding="5"
-          @click="handlePreviousPage"
-          :disabled="currentPage === 1"
-        >
-          <img
-            src="../assets/left-arrow.svg"
-            alt="left"
-            class="menu__pagination-icon"
-          />
-        </Button>
-        <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <Button
-          :button-width="10"
-          :button-padding="5"
-          @click="handleNextPage"
-          :disabled="currentPage === totalPages"
-        >
-          <img
-            src="../assets/right-arrow.svg"
-            alt="right"
-            class="menu__pagination-icon"
-          />
-        </Button>
-      </div>
+    </div>
+
+    <div class="menu__pagination" v-if="totalPages">
+      <Button
+        :button-width="10"
+        :button-padding="5"
+        @click="handlePreviousPage"
+        :disabled="currentPage === 1"
+      >
+        <img
+          src="../assets/left-arrow.svg"
+          alt="left"
+          class="menu__pagination-icon"
+        />
+      </Button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <Button
+        :button-width="10"
+        :button-padding="5"
+        @click="handleNextPage"
+        :disabled="currentPage === totalPages"
+      >
+        <img
+          src="../assets/right-arrow.svg"
+          alt="right"
+          class="menu__pagination-icon"
+        />
+      </Button>
     </div>
   </div>
 </template>
@@ -210,7 +212,7 @@ h3 {
   width: 100%;
   max-height: 200px;
   overflow-y: auto;
-  background: white;
+  background: var(--white);
   border: 1px solid #ddd;
   border-radius: 5px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -228,16 +230,20 @@ h3 {
   background: #f0f0f0;
 }
 
+.menu__gallery {
+  flex-grow: 1;
+}
+
 .gallery {
   display: flex;
   flex-wrap: wrap;
   gap: 18px;
-  justify-content: normal;
+  justify-content: center;
   margin: 20px;
 }
 
 .gallery__item {
-  width: 23%;
+  width: 30%;
   box-sizing: border-box;
   background-color: var(--white);
 }
@@ -253,6 +259,7 @@ h3 {
   display: flex;
   gap: 10px;
   justify-content: center;
+  margin-bottom: 50px;
 }
 
 .menu__pagination-icon {
