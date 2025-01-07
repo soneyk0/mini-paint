@@ -1,0 +1,42 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --primary: teal;
+  --secondary:lightseagreen;
+  --white:#fff;
+  --black:#333;
+  --red:darkred;
+  --bg-color:#edfffc
+}
+
+.dark-theme {
+  --primary: darkorange;
+  --secondary: lightsalmon;
+  --white: #fff;
+  --black: #333;
+  --red: darkred;
+  --bg-color: #FFDEAD;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+height: 100%;
+}
+
+#app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #cccccc;
+  padding: 25px;
+  overflow: hidden;
+}
+
