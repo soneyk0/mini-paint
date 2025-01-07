@@ -1,21 +1,25 @@
 <script setup lang="ts">
-import Button from "./common/Button.vue";
+import Button from './common/Button.vue'
 
 const changeTheme = () => {
-  document.body.classList.toggle('dark-theme');
+  document.body.classList.toggle('dark-theme')
 }
 </script>
 
 <template>
-  <Button :button-text="'Change the theme'" :button-width="10" :button-padding="5" @click="changeTheme"/>
+  <Button
+    :button-text="'Change the theme'"
+    :button-width="10"
+    :button-padding="5"
+    @click="changeTheme"
+  />
   <div class="display">
-    <router-view/>
+    <router-view />
   </div>
-
 </template>
 
 <style scoped>
-.display{
+.display {
   display: block;
   margin-left: auto;
   margin-right: auto;

@@ -5,7 +5,7 @@ import { collection, addDoc } from 'firebase/firestore'
 import { db } from '../main.ts'
 import { getAuth } from 'firebase/auth'
 import Input from '../common/Input.vue'
-import Button from '../common/Button.vue'
+import { toast } from 'vue3-toastify'
 
 const canvas = ref<HTMLCanvasElement | null>(null)
 const context = ref<CanvasRenderingContext2D | null>(null)
@@ -14,7 +14,6 @@ const lineWidth = ref(2)
 const tool = ref('brush')
 let isDrawing = false
 
-// Координаты для начала и текущего положения мыши
 let startX = 0
 let startY = 0
 let currentX = 0
@@ -39,7 +38,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', updateCanvasSize)
 })
 
-// Буфер для сохранения текущего состояния холста
 let canvasBuffer: ImageData | null = null
 
 function setTool(selectedTool: string) {
@@ -62,7 +60,6 @@ function startDrawing(event: MouseEvent) {
   isDrawing = true
 
   if (context.value && tool.value !== 'brush') {
-    // Сохраняем текущее состояние холста перед рисованием фигуры
     canvasBuffer = context.value.getImageData(
       0,
       0,
@@ -89,11 +86,9 @@ function draw(event: MouseEvent) {
     context.value.strokeStyle = color.value
 
     if (tool.value === 'brush') {
-      // Карандаш
       context.value.lineTo(currentX, currentY)
       context.value.stroke()
     } else {
-      // Очищаем холст перед временной отрисовкой фигуры
       if (canvasBuffer) {
         context.value.putImageData(canvasBuffer, 0, 0)
       }
@@ -102,7 +97,6 @@ function draw(event: MouseEvent) {
         (currentX - startX) ** 2 + (currentY - startY) ** 2,
       )
 
-      // Рисуем фигуру
       switch (tool.value) {
         case 'line':
           context.value.beginPath()
@@ -115,17 +109,18 @@ function draw(event: MouseEvent) {
           context.value.arc(startX, startY, radius, 0, Math.PI * 2)
           context.value.stroke()
           break
-        case 'triangle':
+        case 'square':
           context.value.beginPath()
           context.value.moveTo(startX, startY)
+          context.value.lineTo(currentX, startY)
           context.value.lineTo(currentX, currentY)
-          context.value.lineTo(startX - (currentX - startX), currentY)
+          context.value.lineTo(startX, currentY)
           context.value.closePath()
           context.value.stroke()
           break
         case 'polygon':
-          const sides = 6 // Количество сторон восьмиугольника
-          const angleStep = (2 * Math.PI) / sides // Угол между вершинами
+          const sides = 6
+          const angleStep = (2 * Math.PI) / sides
           context.value.beginPath()
 
           for (let i = 0; i <= sides; i++) {
@@ -144,26 +139,25 @@ function draw(event: MouseEvent) {
           context.value.stroke()
           break
         case 'star':
-          const points = 5 // Количество концов звезды
-          const outerRadius = radius // Внешний радиус
-          const innerRadius = radius / 2 // Внутренний радиус (можно изменить для изменения формы звезды)
+          const points = 5
+          const outerRadius = radius
+          const innerRadius = radius / 2
 
           context.value.beginPath()
           for (let i = 0; i < points * 2; i++) {
-            // Чередуем внешний и внутренний радиус
             const currentRadius = i % 2 === 0 ? outerRadius : innerRadius
-            const angle = (Math.PI / points) * i // Угол для текущей вершины
+            const angle = (Math.PI / points) * i
 
             const x = startX + currentRadius * Math.cos(angle)
             const y = startY + currentRadius * Math.sin(angle)
 
             if (i === 0) {
-              context.value.moveTo(x, y) // Начинаем рисование с первой точки
+              context.value.moveTo(x, y)
             } else {
-              context.value.lineTo(x, y) // Рисуем линии к следующим точкам
+              context.value.lineTo(x, y)
             }
           }
-          context.value.closePath() // Закрываем путь для завершения фигуры
+          context.value.closePath()
           context.value.stroke()
           break
       }
@@ -174,7 +168,6 @@ function draw(event: MouseEvent) {
 function stopDrawing() {
   isDrawing = false
 
-  // Фиксируем фигуру на холсте
   if (tool.value !== 'brush' && canvasBuffer && context.value) {
     canvasBuffer = context.value.getImageData(
       0,
@@ -204,22 +197,20 @@ const updateCanvasSize = () => {
 const saveCanvasToFirebase = async () => {
   if (!canvas.value) return
 
-  // Получаем изображение в формате Base64
   const dataURL = canvas.value.toDataURL('image/png')
 
   try {
-    // Сохраняем изображение в Realtime Database
     await addDoc(collection(db, 'canvas_images'), {
       data: dataURL,
       timestamp: Date.now(),
       email: user?.email,
     })
-
-    alert('Изображение успешно сохранено в Firebase Database!')
-  } catch (error) {
-    console.error('Ошибка при сохранении изображения:', error)
-    alert('Произошла ошибка при сохранении изображения.')
-  }
+    toast.success('Image saved successfully!', {
+      autoClose: 3000,
+      position: 'bottom-left',
+      theme: 'colored',
+    })
+  } catch (error) {}
 }
 
 const goToHome = () => {
@@ -236,8 +227,8 @@ const goToHome = () => {
       <button @click="setTool('line')" class="editor__button">
         <img src="../assets/line.svg" alt="line" class="editor__icon" />
       </button>
-      <button @click="setTool('triangle')" class="editor__button">
-        <img src="../assets/triangle.svg" alt="triangle" class="editor__icon" />
+      <button @click="setTool('square')" class="editor__button">
+        <img src="../assets/square.svg" alt="triangle" class="editor__icon" />
       </button>
       <button @click="setTool('circle')" class="editor__button">
         <img src="../assets/circle.svg" alt="circle" class="editor__icon" />
