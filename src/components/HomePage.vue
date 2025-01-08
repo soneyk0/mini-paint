@@ -232,20 +232,31 @@ h3 {
 
 .menu__gallery {
   flex-grow: 1;
+  overflow: hidden;
+  overflow-y: auto;
 }
 
 .gallery {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
-  justify-content: center;
-  margin: 20px;
+  gap: 25px;
+  margin-left: 25px;
+  margin-top: 25px;
+  @media (max-width: 640px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 0;
+  }
 }
 
 .gallery__item {
   width: 30%;
   box-sizing: border-box;
   background-color: var(--white);
+  @media (max-width: 640px) {
+    width: 90%;
+  }
 }
 
 .gallery__image {
@@ -260,6 +271,7 @@ h3 {
   gap: 10px;
   justify-content: center;
   margin-bottom: 50px;
+  margin-top: 18px;
 }
 
 .menu__pagination-icon {
