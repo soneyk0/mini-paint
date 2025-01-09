@@ -3,15 +3,16 @@ import { ref, onMounted, nextTick } from 'vue'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import BaseButton from '../common/BaseButton.vue'
 
-type Step = {
+type tooltipPositionValues = 'top' | 'bottom' | 'left' | 'right'
+
+export type Step = {
   element: string
   content: string
+  tooltipPosition: tooltipPositionValues
 }
 
 const props = defineProps<{
-  steps: Step[]
-  paddingTop: number
-  paddingLeft: number
+  steps: Array<Step>
   page: 'main' | 'editor'
 }>()
 
@@ -34,8 +35,34 @@ const updateHighlight = async () => {
       height: `${rect.height}px`,
     }
     tooltipStyle.value = {
-      top: `${rect.bottom + window.scrollY + props.paddingTop}px`,
-      left: `${rect.left + window.scrollX + props.paddingLeft}px`,
+      top: `${rect.bottom + window.scrollY}px`,
+      left: `${rect.left + window.scrollX}px`,
+    }
+
+    switch (step.tooltipPosition) {
+      case 'top':
+        tooltipStyle.value = {
+          top: `${rect.top + window.scrollY - 100}px`,
+          left: `${rect.left + window.scrollX + rect.width / 2 - 100}px`,
+        }
+        break
+      case 'left':
+        tooltipStyle.value = {
+          top: `${rect.top + window.scrollY + rect.height / 2 - 40}px`,
+          left: `${rect.left + window.scrollX - 220}px`,
+        }
+        break
+      case 'right':
+        tooltipStyle.value = {
+          top: `${rect.top + window.scrollY + rect.height / 2 - 40}px`,
+          left: `${rect.right + window.scrollX + 10}px`,
+        }
+        break
+      default:
+        tooltipStyle.value = {
+          top: `${rect.bottom + window.scrollY + 5}px`,
+          left: `${rect.left + window.scrollX + rect.width / 2 - 100}px`,
+        }
     }
   }
 }
@@ -43,13 +70,7 @@ const updateHighlight = async () => {
 const checkOnboardingStatus = (email: string) => {
   const completedKey = `onboardingCompleted_${email}_${props.page}`
   const completed = localStorage.getItem(completedKey)
-  isActive.value = !completed // Если нет записи в localStorage, показываем онбординг
-
-  console.log(
-    `Onboarding status for ${email} on ${props.page}: ${
-      completed ? 'Completed' : 'Active'
-    }`,
-  )
+  isActive.value = !completed
 }
 
 const nextStep = () => {
@@ -148,12 +169,12 @@ onMounted(() => {
 
 .onboarding-tooltip {
   position: absolute;
-  background: white;
+  background: var(--white);
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   z-index: 10000;
-  min-width: 250px;
+  width: 200px;
 }
 
 .onboarding-buttons {

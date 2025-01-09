@@ -52,15 +52,15 @@ function signIn() {
     <template #footer>
       <Button
         :button-text="'Sign in'"
-        :button-width="90"
+        :button-width="100"
         :button-padding="15"
         class="auth-form__button"
       />
       <p class="auth-form__infoText">
         Don't have an account?
         <router-link to="/mini-paint/signup" class="auth-form__link"
-          >Sign up</router-link
-        >
+          >Sign up
+        </router-link>
       </p>
     </template>
   </AuthForm>
@@ -104,13 +104,12 @@ h1 {
 
 .auth-form__button {
   display: block;
-  margin: 25px auto 0;
   font-size: 18px;
 }
 
 .auth-form__infoText {
   text-align: center;
-  margin-top: 50px;
+  margin-top: 20px;
   color: var(--black);
 }
 
@@ -118,6 +117,7 @@ h1 {
   color: var(--primary);
   text-decoration: none;
 }
+
 .auth-form__link:hover {
   color: var(--secondary);
   text-decoration: underline;

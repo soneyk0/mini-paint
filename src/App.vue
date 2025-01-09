@@ -10,7 +10,7 @@ const changeTheme = () => {
   <Button
     :button-text="'Change the theme'"
     :button-width="10"
-    :button-padding="5"
+    :button-padding="10"
     @click="changeTheme"
     class="change-theme-button"
   />

@@ -85,7 +85,7 @@ function register() {
     <template #footer>
       <Button
         :button-text="'Sing up'"
-        :button-width="90"
+        :button-width="100"
         :button-padding="15"
         class="register-form__button"
       />
@@ -136,13 +136,12 @@ h1 {
 
 .register-form__button {
   display: block;
-  margin: 25px auto 0;
   font-size: 18px;
 }
 
 .register-form__infoText {
   text-align: center;
-  margin-top: 50px;
+  margin-top: 20px;
   color: var(--black);
 }
 

@@ -1,16 +1,22 @@
 <script setup lang="ts">
-
 defineProps<{
   buttonText?: string
-  buttonWidth:number
-  buttonPadding:number
-  buttonBorderColor?:string
+  buttonWidth: number
+  buttonPadding: number
+  buttonBorderColor?: string
+  disabled?: boolean
 }>()
 </script>
 <template>
-  <button type="submit" :style="{ width: buttonWidth + '%',
-  padding:buttonPadding + 'px',
-  border: buttonBorderColor}">
+  <button
+    type="submit"
+    :style="{
+      width: buttonWidth + '%',
+      padding: buttonPadding + 'px',
+      border: buttonBorderColor,
+    }"
+    :disabled="disabled"
+  >
     {{ buttonText }}
     <slot></slot>
   </button>
@@ -29,5 +35,7 @@ button {
 button:hover {
   background-color: var(--secondary);
 }
-
+button:disabled {
+  background-color: #ccc;
+}
 </style>

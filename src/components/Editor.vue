@@ -7,6 +7,7 @@ import { getAuth } from 'firebase/auth'
 import Input from '../common/BaseInput.vue'
 import { toast } from 'vue3-toastify'
 import Onboarding from './Onboarding.vue'
+import { stepsEditorOnboarding } from '../stepsStore/stepsStore.ts'
 
 const canvas = ref<HTMLCanvasElement | null>(null)
 const context = ref<CanvasRenderingContext2D | null>(null)
@@ -217,32 +218,10 @@ const saveCanvasToFirebase = async () => {
 const goToHome = () => {
   router.push('/mini-paint/')
 }
-
-const steps = [
-  { element: '.brush', content: 'Brush.' },
-  { element: '.line', content: 'Draws a straight line.' },
-  { element: '.square', content: 'Draws a square.' },
-  { element: '.circle', content: 'Draws a circle.' },
-  { element: '.polygon', content: 'Draws a polygon.' },
-  { element: '.star', content: 'Draws a star.' },
-  {
-    element: '.editor__figure-thickness',
-    content: 'Choose the thickness of the figure.',
-  },
-  { element: '.editor__color', content: 'Choose the color of the figure.' },
-  { element: '.clean', content: 'Clean a sheet.' },
-  { element: '.save', content: 'Save to gallery.' },
-  { element: '.back', content: 'Return to main page.' },
-]
 </script>
 
 <template>
-  <Onboarding
-    :steps="steps"
-    :padding-left="70"
-    :padding-top="-60"
-    page="editor"
-  />
+  <Onboarding page="editor" :steps="stepsEditorOnboarding" />
   <div class="editor">
     <div class="editor__toolbar">
       <button @click="setTool('brush')" class="editor__button brush">
