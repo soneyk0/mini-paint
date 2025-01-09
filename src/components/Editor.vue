@@ -6,6 +6,7 @@ import { db } from '../main.ts'
 import { getAuth } from 'firebase/auth'
 import Input from '../common/BaseInput.vue'
 import { toast } from 'vue3-toastify'
+import Onboarding from './Onboarding.vue'
 
 const canvas = ref<HTMLCanvasElement | null>(null)
 const context = ref<CanvasRenderingContext2D | null>(null)
@@ -216,27 +217,50 @@ const saveCanvasToFirebase = async () => {
 const goToHome = () => {
   router.push('/mini-paint/')
 }
+
+const steps = [
+  { element: '.brush', content: 'Brush.' },
+  { element: '.line', content: 'Draws a straight line.' },
+  { element: '.square', content: 'Draws a square.' },
+  { element: '.circle', content: 'Draws a circle.' },
+  { element: '.polygon', content: 'Draws a polygon.' },
+  { element: '.star', content: 'Draws a star.' },
+  {
+    element: '.editor__figure-thickness',
+    content: 'Choose the thickness of the figure.',
+  },
+  { element: '.editor__color', content: 'Choose the color of the figure.' },
+  { element: '.clean', content: 'Clean a sheet.' },
+  { element: '.save', content: 'Save to gallery.' },
+  { element: '.back', content: 'Return to main page.' },
+]
 </script>
 
 <template>
+  <Onboarding
+    :steps="steps"
+    :padding-left="70"
+    :padding-top="-60"
+    page="editor"
+  />
   <div class="editor">
     <div class="editor__toolbar">
-      <button @click="setTool('brush')" class="editor__button">
+      <button @click="setTool('brush')" class="editor__button brush">
         <img src="../assets/brush.svg" alt="brush" class="editor__icon" />
       </button>
-      <button @click="setTool('line')" class="editor__button">
+      <button @click="setTool('line')" class="editor__button line">
         <img src="../assets/line.svg" alt="line" class="editor__icon" />
       </button>
-      <button @click="setTool('square')" class="editor__button">
+      <button @click="setTool('square')" class="editor__button square">
         <img src="../assets/square.svg" alt="triangle" class="editor__icon" />
       </button>
-      <button @click="setTool('circle')" class="editor__button">
+      <button @click="setTool('circle')" class="editor__button circle">
         <img src="../assets/circle.svg" alt="circle" class="editor__icon" />
       </button>
-      <button @click="setTool('polygon')" class="editor__button">
+      <button @click="setTool('polygon')" class="editor__button polygon">
         <img src="../assets/polygon.svg" alt="polygon" class="editor__icon" />
       </button>
-      <button @click="setTool('star')" class="editor__button">
+      <button @click="setTool('star')" class="editor__button star">
         <img src="../assets/star.svg" alt="star" class="editor__icon" />
       </button>
 
@@ -248,22 +272,24 @@ const goToHome = () => {
           v-model="lineWidth"
           min="1"
           max="20"
+          class="editor__figure-thickness"
         ></Input>
       </label>
       <Input
         :input-type="'color'"
         :input-max-width="90"
         v-model="color"
+        class="editor__color"
       ></Input>
 
-      <button @click="clearCanvas" class="editor__button">
+      <button @click="clearCanvas" class="editor__button clean">
         <img src="../assets/clean.svg" alt="clean" class="editor__icon" />
       </button>
-      <button class="editor__button" @click="saveCanvasToFirebase">
+      <button class="editor__button save" @click="saveCanvasToFirebase">
         <img src="../assets/save.svg" alt="save" class="editor__icon" />
       </button>
-      <button class="editor__button" @click="goToHome">
-        <img src="../assets/back.svg" alt="back" class="editor__icon" />
+      <button class="editor__button back" @click="goToHome">
+        <img src="../assets/back.svg" alt="back" class="editor__icon back" />
       </button>
     </div>
     <div class="editor__field">

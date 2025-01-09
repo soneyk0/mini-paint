@@ -6,6 +6,7 @@ import { computed, onMounted, ref } from 'vue'
 import { db } from '../main.ts'
 import { collection, query, getDocs } from 'firebase/firestore'
 import Input from '../common/BaseInput.vue'
+import Onboarding from './Onboarding.vue'
 
 const images = ref<{ data: string; email: string; timestamp: string }[]>([])
 const usersEmail = ref<string[]>([])
@@ -88,18 +89,29 @@ const handleClickOutside = (event: MouseEvent) => {
     showDropdown.value = false
   }
 }
+
+const steps = [
+  { element: '.create-button', content: 'Click to create an image.' },
+  { element: '.dropdown', content: 'Filter images by user email.' },
+  { element: '.signout-button', content: 'Log out button.' },
+  { element: '.menu__pagination', content: 'Pagination buttons.' },
+  { element: '.change-theme-button', content: 'Change application theme.' },
+]
 </script>
 
 <template>
+  <Onboarding :steps="steps" :padding-top="10" :padding-left="0" page="main" />
   <div class="menu">
     <div class="menu__header">
       <h3>Gallery of images</h3>
+
       <Button
         :button-text="'Creat image'"
         :button-width="20"
         :button-padding="10"
         @click="goToEditor"
         button-border-color="2px solid var(--white)"
+        class="create-button"
       />
 
       <div class="dropdown">
@@ -121,12 +133,14 @@ const handleClickOutside = (event: MouseEvent) => {
           </li>
         </ul>
       </div>
+
       <Button
         :button-text="'Sign out'"
         :button-width="20"
         :button-padding="10"
         @click="loginOut"
         button-border-color="2px solid var(--white)"
+        class="signout-button"
       />
     </div>
     <div class="menu__gallery">

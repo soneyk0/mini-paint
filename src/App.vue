@@ -12,6 +12,7 @@ const changeTheme = () => {
     :button-width="10"
     :button-padding="5"
     @click="changeTheme"
+    class="change-theme-button"
   />
   <div class="display">
     <router-view />
