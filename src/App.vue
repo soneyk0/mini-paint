@@ -1,9 +1,22 @@
 <script setup lang="ts">
 import Button from './common/BaseButton.vue'
+import { onMounted } from 'vue'
 
 const changeTheme = () => {
   document.body.classList.toggle('dark-theme')
+  if (document.body.classList.contains('dark-theme')) {
+    localStorage.setItem('darkTheme', '1')
+  } else {
+    localStorage.removeItem('darkTheme')
+  }
 }
+
+onMounted(() => {
+  const isDarkTheme = localStorage.getItem('darkTheme')
+  if (isDarkTheme) {
+    document.body.classList.toggle('dark-theme')
+  }
+})
 </script>
 
 <template>

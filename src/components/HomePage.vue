@@ -36,6 +36,7 @@ onMounted(async () => {
 const filterByUser = (email: string) => {
   store.commit('setSelectedUser', email)
   showDropdown.value = false
+  store.state.currentPage = 1
 }
 
 const resetFilter = () => {
