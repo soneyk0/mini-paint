@@ -2,29 +2,23 @@
 import { getAuth, signOut } from 'firebase/auth'
 import router from '../appRoutes/router.js'
 import Button from '../common/BaseButton.vue'
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { db } from '../main.ts'
 import { collection, query, getDocs } from 'firebase/firestore'
 import Input from '../common/BaseInput.vue'
 import Onboarding from './Onboarding.vue'
 import { stepsHomePageOnboarding } from '../stepsStore/stepsStore.ts'
+import { useStore } from 'vuex'
 
-const images = ref<{ data: string; email: string; timestamp: string }[]>([])
-const usersEmail = ref<string[]>([])
-const filteredImages = ref<
-  { data: string; email: string; timestamp: string }[]
->([])
-const itemsPerPage = 6
-let currentPage = ref(1)
-const selectedUser = ref<string | null>(null)
 const showDropdown = ref(false)
+const store = useStore()
 
 onMounted(async () => {
   const q = query(collection(db, 'canvas_images'))
   const querySnapshot = await getDocs(q)
   const emailSet = new Set<string>()
 
-  images.value = querySnapshot.docs
+  const images = querySnapshot.docs
     .map((doc) => {
       const data = doc.data()
       if (data.email) {
@@ -34,21 +28,18 @@ onMounted(async () => {
     })
     .sort((a, b) => b.timestamp - a.timestamp)
 
-  usersEmail.value = Array.from(emailSet)
-  filteredImages.value = [...images.value]
+  store.commit('setImages', images)
+  store.commit('setUsersEmail', Array.from(emailSet))
   document.body.addEventListener('click', handleClickOutside)
 })
 
 const filterByUser = (email: string) => {
-  selectedUser.value = email
-
-  filteredImages.value = images.value.filter((img) => img.email === email)
+  store.commit('setSelectedUser', email)
   showDropdown.value = false
 }
 
 const resetFilter = () => {
-  selectedUser.value = null
-  filteredImages.value = [...images.value]
+  store.commit('resetFilter')
 }
 
 const loginOut = () => {
@@ -62,25 +53,15 @@ const goToEditor = () => {
   router.push('/mini-paint/editor')
 }
 
-const paginatedImages = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredImages.value.slice(start, end)
-})
-
-const totalPages = computed(() =>
-  Math.ceil(filteredImages.value.length / itemsPerPage),
-)
-
 const handlePreviousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
+  if (store.state.currentPage > 1) {
+    store.state.currentPage--
   }
 }
 
 const handleNextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
+  if (store.state.currentPage < store.getters.totalPages) {
+    store.state.currentPage++
   }
 }
 
@@ -108,7 +89,7 @@ const handleClickOutside = (event: MouseEvent) => {
 
       <div class="dropdown">
         <Input
-          v-model="selectedUser"
+          v-model="store.state.selectedUser"
           :input-type="'search'"
           :input-max-width="200"
           placeholder="Search by user email..."
@@ -117,7 +98,7 @@ const handleClickOutside = (event: MouseEvent) => {
         />
         <ul v-if="showDropdown" class="dropdown__list">
           <li
-            v-for="email in usersEmail"
+            v-for="email in store.state.usersEmail"
             :key="email"
             @click="filterByUser(email)"
           >
@@ -136,9 +117,9 @@ const handleClickOutside = (event: MouseEvent) => {
       />
     </div>
     <div class="menu__gallery">
-      <div v-if="images.length > 0" class="gallery">
+      <div v-if="store.getters.paginatedImages.length > 0" class="gallery">
         <div
-          v-for="(image, index) in paginatedImages"
+          v-for="(image, index) in store.getters.paginatedImages"
           :key="index"
           class="gallery__item"
         >
@@ -148,12 +129,12 @@ const handleClickOutside = (event: MouseEvent) => {
       <p v-else>No images available.</p>
     </div>
 
-    <div class="menu__pagination" v-if="totalPages">
+    <div class="menu__pagination" v-if="store.getters.totalPages">
       <Button
         :button-width="10"
         :button-padding="5"
         @click="handlePreviousPage"
-        :disabled="currentPage === 1"
+        :disabled="store.state.currentPage === 1"
       >
         <img
           src="../assets/left-arrow.svg"
@@ -161,12 +142,15 @@ const handleClickOutside = (event: MouseEvent) => {
           class="menu__pagination-icon"
         />
       </Button>
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <span
+        >Page {{ store.state.currentPage }} of
+        {{ store.getters.totalPages }}</span
+      >
       <Button
         :button-width="10"
         :button-padding="5"
         @click="handleNextPage"
-        :disabled="currentPage === totalPages"
+        :disabled="store.state.currentPage === store.getters.totalPages"
       >
         <img
           src="../assets/right-arrow.svg"

@@ -5,6 +5,7 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { VueFire } from 'vuefire'
 import router from './appRoutes/router.ts'
+import store from './store.ts'
 
 export const firebaseApp = initializeApp({
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,4 +18,8 @@ export const firebaseApp = initializeApp({
 
 export const db = getFirestore(firebaseApp)
 
-createApp(App).use(VueFire, { firebaseApp }).use(router).mount('#app')
+createApp(App)
+  .use(store)
+  .use(VueFire, { firebaseApp })
+  .use(router)
+  .mount('#app')

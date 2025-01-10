@@ -8,13 +8,13 @@ import Input from '../common/BaseInput.vue'
 import { toast } from 'vue3-toastify'
 import Onboarding from './Onboarding.vue'
 import { stepsEditorOnboarding } from '../stepsStore/stepsStore.ts'
+import { useStore } from 'vuex'
 
 const canvas = ref<HTMLCanvasElement | null>(null)
 const context = ref<CanvasRenderingContext2D | null>(null)
-const color = ref('#000000')
-const lineWidth = ref(2)
-const tool = ref('brush')
 let isDrawing = false
+
+const store = useStore()
 
 let startX = 0
 let startY = 0
@@ -43,7 +43,7 @@ onBeforeUnmount(() => {
 let canvasBuffer: ImageData | null = null
 
 function setTool(selectedTool: string) {
-  tool.value = selectedTool
+  store.commit('setTool', selectedTool)
 }
 
 function clearCanvas() {
@@ -61,16 +61,20 @@ function startDrawing(event: MouseEvent) {
 
   isDrawing = true
 
-  if (context.value && tool.value !== 'brush') {
-    canvasBuffer = context.value.getImageData(
-      0,
-      0,
-      canvasElement.width,
-      canvasElement.height,
-    )
-  } else {
-    context.value?.beginPath()
-    context.value?.moveTo(startX, startY)
+  if (context.value) {
+    context.value.lineWidth = store.state.lineWidth
+    context.value.strokeStyle = store.state.color
+    if (store.state.tool === 'brush') {
+      context.value.beginPath()
+      context.value.moveTo(startX, startY)
+    } else {
+      canvasBuffer = context.value.getImageData(
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height,
+      )
+    }
   }
 }
 
@@ -84,10 +88,10 @@ function draw(event: MouseEvent) {
   currentY = event.clientY - rect.top
 
   if (context.value) {
-    context.value.lineWidth = lineWidth.value
-    context.value.strokeStyle = color.value
+    context.value.lineWidth = store.state.lineWidth
+    context.value.strokeStyle = store.state.color
 
-    if (tool.value === 'brush') {
+    if (store.state.tool === 'brush') {
       context.value.lineTo(currentX, currentY)
       context.value.stroke()
     } else {
@@ -99,7 +103,7 @@ function draw(event: MouseEvent) {
         (currentX - startX) ** 2 + (currentY - startY) ** 2,
       )
 
-      switch (tool.value) {
+      switch (store.state.tool) {
         case 'line':
           context.value.beginPath()
           context.value.moveTo(startX, startY)
@@ -170,7 +174,7 @@ function draw(event: MouseEvent) {
 function stopDrawing() {
   isDrawing = false
 
-  if (tool.value !== 'brush' && canvasBuffer && context.value) {
+  if (store.state.tool !== 'brush' && canvasBuffer && context.value) {
     canvasBuffer = context.value.getImageData(
       0,
       0,
@@ -191,8 +195,8 @@ const updateCanvasSize = () => {
   canvasElement.height = fieldHeight
 
   if (context.value) {
-    context.value.lineWidth = lineWidth.value
-    context.value.strokeStyle = color.value
+    context.value.lineWidth = store.state.lineWidth
+    context.value.strokeStyle = store.state.color
   }
 }
 
@@ -248,7 +252,7 @@ const goToHome = () => {
         <Input
           :input-type="'number'"
           :input-max-width="90"
-          v-model="lineWidth"
+          v-model="store.state.lineWidth"
           min="1"
           max="20"
           class="editor__figure-thickness"
@@ -257,7 +261,7 @@ const goToHome = () => {
       <Input
         :input-type="'color'"
         :input-max-width="90"
-        v-model="color"
+        v-model="store.state.color"
         class="editor__color"
       ></Input>
 
