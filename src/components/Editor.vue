@@ -4,7 +4,7 @@ import router from '../appRoutes/router.ts'
 import { collection, addDoc } from 'firebase/firestore'
 import { db } from '../main.ts'
 import { getAuth } from 'firebase/auth'
-import Input from '../common/BaseInput.vue'
+import BaseInput from '../common/BaseInput.vue'
 import { toast } from 'vue3-toastify'
 import Onboarding from './Onboarding.vue'
 import { stepsEditorOnboarding } from '../stepsStore/stepsStore.ts'
@@ -249,21 +249,21 @@ const goToHome = () => {
 
       <label>
         Width:
-        <Input
+        <BaseInput
           :input-type="'number'"
           :input-max-width="90"
           v-model="store.state.lineWidth"
           min="1"
           max="20"
           class="editor__figure-thickness"
-        ></Input>
+        ></BaseInput>
       </label>
-      <Input
+      <BaseInput
         :input-type="'color'"
         :input-max-width="90"
         v-model="store.state.color"
         class="editor__color"
-      ></Input>
+      ></BaseInput>
 
       <button @click="clearCanvas" class="editor__button clean">
         <img src="../assets/clean.svg" alt="clean" class="editor__icon" />

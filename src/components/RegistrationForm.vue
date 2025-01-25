@@ -4,8 +4,9 @@ import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import router from '../appRoutes/router.js'
-import AuthForm from '../common/BaseForm.vue'
-import Button from '../common/BaseButton.vue'
+import BaseForm from '../common/BaseForm.vue'
+import BaseButton from '../common/BaseButton.vue'
+import BaseInput from '../common/BaseInput.vue'
 
 const email = ref('')
 const password = ref('')
@@ -52,11 +53,11 @@ function register() {
 </script>
 
 <template>
-  <AuthForm title="Sign up" :onSubmit="register" :errorMessage="errorMessage">
+  <BaseForm title="Sign up" :onSubmit="register" :errorMessage="errorMessage">
     <template #inputs>
       <div class="register-form__email">
         <p class="register-form__nameOfInput">Email</p>
-        <input
+        <BaseInput
           type="email"
           class="register-form__input"
           placeholder="Enter email"
@@ -65,7 +66,7 @@ function register() {
       </div>
       <div class="register-form__password">
         <p class="register-form__nameOfInput">Password</p>
-        <input
+        <BaseInput
           type="password"
           class="register-form__input"
           placeholder="Enter password"
@@ -74,7 +75,7 @@ function register() {
       </div>
       <div class="register-form__password">
         <p class="register-form__nameOfInput">Confirm password</p>
-        <input
+        <BaseInput
           type="password"
           class="register-form__input"
           placeholder="Enter password"
@@ -83,7 +84,7 @@ function register() {
       </div>
     </template>
     <template #footer>
-      <Button
+      <BaseButton
         :button-text="'Sing up'"
         :button-width="100"
         :button-padding="15"
@@ -96,7 +97,7 @@ function register() {
         >
       </p>
     </template>
-  </AuthForm>
+  </BaseForm>
 </template>
 
 <style scoped>

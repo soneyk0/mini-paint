@@ -4,8 +4,9 @@ import { ref } from 'vue'
 import router from '../appRoutes/router.ts'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
-import AuthForm from '../common/BaseForm.vue'
-import Button from '../common/BaseButton.vue'
+import BaseForm from '../common/BaseForm.vue'
+import BaseButton from '../common/BaseButton.vue'
+import BaseInput from '../common/BaseInput.vue'
 
 const email = ref('')
 const password = ref('')
@@ -28,11 +29,11 @@ function signIn() {
 </script>
 
 <template>
-  <AuthForm title="Sign in" :onSubmit="signIn" :errorMessage="errorMessage">
+  <BaseForm title="Sign in" :onSubmit="signIn" :errorMessage="errorMessage">
     <template #inputs>
       <div class="auth-form__email">
         <p class="auth-form__nameOfInput">Email</p>
-        <input
+        <BaseInput
           type="email"
           class="auth-form__input"
           placeholder="Enter email"
@@ -41,7 +42,7 @@ function signIn() {
       </div>
       <div class="auth-form__password">
         <p class="auth-form__nameOfInput">Password</p>
-        <input
+        <BaseInput
           type="password"
           class="auth-form__input"
           placeholder="Enter password"
@@ -50,7 +51,7 @@ function signIn() {
       </div>
     </template>
     <template #footer>
-      <Button
+      <BaseButton
         :button-text="'Sign in'"
         :button-width="100"
         :button-padding="15"
@@ -63,7 +64,7 @@ function signIn() {
         </router-link>
       </p>
     </template>
-  </AuthForm>
+  </BaseForm>
 </template>
 
 <style scoped>

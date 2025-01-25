@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{
-  inputMaxWidth: number
-  inputType: string
+  inputMaxWidth?: number
+  inputType?: string
   modelValue?: string | number | null
 }>()
 

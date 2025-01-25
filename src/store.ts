@@ -17,6 +17,7 @@ interface State {
   color: string
   lineWidth: number
   tool: string
+  showDropdown: boolean
 }
 
 const store = createStore<State>({
@@ -30,6 +31,7 @@ const store = createStore<State>({
     color: '#000000',
     lineWidth: 2,
     tool: 'brush',
+    showDropdown: false,
   },
   mutations: {
     setImages(state: State, images: Image[]) {
