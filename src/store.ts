@@ -1,4 +1,12 @@
 import { createStore } from 'vuex'
+import {
+  fetchImagesAndUsers,
+  onAuthStateChangedListener,
+  registerUser,
+  saveCanvasToFirebase,
+  signInWithEmail,
+  signOutUser,
+} from './services/firebaseService.ts'
 
 interface Image {
   data: string
@@ -6,7 +14,6 @@ interface Image {
   timestamp: number
 }
 
-// Состояние
 interface State {
   images: Image[]
   filteredImages: Image[]
@@ -51,6 +58,33 @@ const store = createStore<State>({
     },
     setTool(state: State, tool: string) {
       state.tool = tool
+    },
+  },
+  actions: {
+    async loadImages({ commit }) {
+      const { images, usersEmail } = await fetchImagesAndUsers()
+      commit('setImages', images)
+      commit('setUsersEmail', usersEmail)
+    },
+    async saveImage(_, canvas: HTMLCanvasElement) {
+      await saveCanvasToFirebase(canvas)
+    },
+    async login({ commit }, { email, password }) {
+      await signInWithEmail(email, password)
+      commit('setUser', email)
+    },
+    async register({ commit }, { email, password }) {
+      await registerUser(email, password)
+      commit('setUser', email)
+    },
+    async logout({ commit }) {
+      await signOutUser()
+      commit('setUser', null)
+    },
+    initializeAuth({ dispatch }) {
+      onAuthStateChangedListener((email: string) => {
+        dispatch('setUserEmail', email) // Диспатчим email пользователя в стора
+      })
     },
   },
   getters: {

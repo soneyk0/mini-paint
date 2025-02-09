@@ -2,7 +2,6 @@
 import BaseButton from '../common/BaseButton.vue'
 import BaseInput from '../common/BaseInput.vue'
 import store from '../store.ts'
-import { getAuth, signOut } from 'firebase/auth'
 import router from '../appRoutes/router.ts'
 
 const filterByUser = (email: string) => {
@@ -16,10 +15,7 @@ const resetFilter = () => {
 }
 
 const loginOut = () => {
-  const auth = getAuth()
-  signOut(auth).then(() => {
-    router.push('/mini-paint/login')
-  })
+  store.dispatch('logout')
 }
 
 const goToEditor = () => {
@@ -30,15 +26,14 @@ const goToEditor = () => {
 <template>
   <div class="menu__header">
     <h3>Gallery of images</h3>
-    <BaseButton
-      :button-text="'Creat image'"
-      :button-width="20"
-      :button-padding="10"
-      @click="goToEditor"
-      button-border-color="2px solid var(--white)"
-      class="create-button"
-    />
-
+    <div class="create-button">
+      <BaseButton
+        :button-text="'Creat image'"
+        variant="primary"
+        :outlined="true"
+        @click="goToEditor"
+      />
+    </div>
     <div class="dropdown">
       <BaseInput
         v-model="store.state.selectedUser"
@@ -58,15 +53,14 @@ const goToEditor = () => {
         </li>
       </ul>
     </div>
-
-    <BaseButton
-      :button-text="'Sign out'"
-      :button-width="20"
-      :button-padding="10"
-      @click="loginOut"
-      button-border-color="2px solid var(--white)"
-      class="signout-button"
-    />
+    <div class="signout-button">
+      <BaseButton
+        :button-text="'Sign out'"
+        @click="loginOut"
+        variant="primary"
+        :outlined="true"
+      />
+    </div>
   </div>
 </template>
 

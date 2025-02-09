@@ -1,252 +1,110 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import router from '../appRoutes/router.ts'
-import { collection, addDoc } from 'firebase/firestore'
-import { db } from '../main.ts'
-import { getAuth } from 'firebase/auth'
+import { useCanvas } from '../composables/useCanvas'
+import { useTool } from '../composables/useTool'
+import BaseButton from '../common/BaseButton.vue'
 import BaseInput from '../common/BaseInput.vue'
-import { toast } from 'vue3-toastify'
 import Onboarding from './Onboarding.vue'
 import { stepsEditorOnboarding } from '../stepsStore/stepsStore.ts'
-import { useStore } from 'vuex'
+import { clearCanvas } from '../utils/clearCanvas.ts'
+import router from '../appRoutes/router.ts'
+import store from '../store.ts'
 
 const canvas = ref<HTMLCanvasElement | null>(null)
-const context = ref<CanvasRenderingContext2D | null>(null)
-let isDrawing = false
 
-const store = useStore()
+const { setTool } = useTool()
 
-let startX = 0
-let startY = 0
-let currentX = 0
-let currentY = 0
-const auth = getAuth()
-const user = auth.currentUser
+const { updateCanvasSize, startDrawing, draw, stopDrawing } = useCanvas(canvas)
 
-onMounted(() => {
-  updateCanvasSize()
-
-  const canvasElement = canvas.value!
-  context.value = canvasElement.getContext('2d')
-
-  canvasElement.addEventListener('mousedown', startDrawing)
-  canvasElement.addEventListener('mousemove', draw)
-  canvasElement.addEventListener('mouseup', stopDrawing)
-
-  window.addEventListener('resize', updateCanvasSize)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateCanvasSize)
-})
-
-let canvasBuffer: ImageData | null = null
-
-function setTool(selectedTool: string) {
-  store.commit('setTool', selectedTool)
-}
-
-function clearCanvas() {
-  if (context.value) {
-    context.value.clearRect(0, 0, canvas.value!.width, canvas.value!.height)
-  }
-}
-
-function startDrawing(event: MouseEvent) {
-  const canvasElement = canvas.value!
-  const rect = canvasElement.getBoundingClientRect()
-
-  startX = event.clientX - rect.left
-  startY = event.clientY - rect.top
-
-  isDrawing = true
-
-  if (context.value) {
-    context.value.lineWidth = store.state.lineWidth
-    context.value.strokeStyle = store.state.color
-    if (store.state.tool === 'brush') {
-      context.value.beginPath()
-      context.value.moveTo(startX, startY)
-    } else {
-      canvasBuffer = context.value.getImageData(
-        0,
-        0,
-        canvasElement.width,
-        canvasElement.height,
-      )
+const clearCanvasHandler = () => {
+  if (canvas.value) {
+    const context = canvas.value.getContext('2d')
+    if (context) {
+      clearCanvas(context, canvas.value)
     }
   }
 }
 
-function draw(event: MouseEvent) {
-  if (!isDrawing) return
-
-  const canvasElement = canvas.value!
-  const rect = canvasElement.getBoundingClientRect()
-
-  currentX = event.clientX - rect.left
-  currentY = event.clientY - rect.top
-
-  if (context.value) {
-    context.value.lineWidth = store.state.lineWidth
-    context.value.strokeStyle = store.state.color
-
-    if (store.state.tool === 'brush') {
-      context.value.lineTo(currentX, currentY)
-      context.value.stroke()
-    } else {
-      if (canvasBuffer) {
-        context.value.putImageData(canvasBuffer, 0, 0)
-      }
-
-      let radius = Math.sqrt(
-        (currentX - startX) ** 2 + (currentY - startY) ** 2,
-      )
-
-      switch (store.state.tool) {
-        case 'line':
-          context.value.beginPath()
-          context.value.moveTo(startX, startY)
-          context.value.lineTo(currentX, currentY)
-          context.value.stroke()
-          break
-        case 'circle':
-          context.value.beginPath()
-          context.value.arc(startX, startY, radius, 0, Math.PI * 2)
-          context.value.stroke()
-          break
-        case 'square':
-          context.value.beginPath()
-          context.value.moveTo(startX, startY)
-          context.value.lineTo(currentX, startY)
-          context.value.lineTo(currentX, currentY)
-          context.value.lineTo(startX, currentY)
-          context.value.closePath()
-          context.value.stroke()
-          break
-        case 'polygon':
-          const sides = 6
-          const angleStep = (2 * Math.PI) / sides
-          context.value.beginPath()
-
-          for (let i = 0; i <= sides; i++) {
-            const angle = i * angleStep
-            const x = startX + radius * Math.cos(angle)
-            const y = startY + radius * Math.sin(angle)
-
-            if (i === 0) {
-              context.value.moveTo(x, y)
-            } else {
-              context.value.lineTo(x, y)
-            }
-          }
-
-          context.value.closePath()
-          context.value.stroke()
-          break
-        case 'star':
-          const points = 5
-          const outerRadius = radius
-          const innerRadius = radius / 2
-
-          context.value.beginPath()
-          for (let i = 0; i < points * 2; i++) {
-            const currentRadius = i % 2 === 0 ? outerRadius : innerRadius
-            const angle = (Math.PI / points) * i
-
-            const x = startX + currentRadius * Math.cos(angle)
-            const y = startY + currentRadius * Math.sin(angle)
-
-            if (i === 0) {
-              context.value.moveTo(x, y)
-            } else {
-              context.value.lineTo(x, y)
-            }
-          }
-          context.value.closePath()
-          context.value.stroke()
-          break
-      }
-    }
-  }
-}
-
-function stopDrawing() {
-  isDrawing = false
-
-  if (store.state.tool !== 'brush' && canvasBuffer && context.value) {
-    canvasBuffer = context.value.getImageData(
-      0,
-      0,
-      canvas.value!.width,
-      canvas.value!.height,
-    )
-  }
-}
-
-const updateCanvasSize = () => {
-  const canvasElement = canvas.value!
-  const editorField = document.querySelector('.editor__field') as HTMLElement
-
-  const fieldWidth = editorField.offsetWidth
-  const fieldHeight = editorField.offsetHeight
-
-  canvasElement.width = fieldWidth
-  canvasElement.height = fieldHeight
-
-  if (context.value) {
-    context.value.lineWidth = store.state.lineWidth
-    context.value.strokeStyle = store.state.color
-  }
-}
-
-const saveCanvasToFirebase = async () => {
-  if (!canvas.value) return
-
-  const dataURL = canvas.value.toDataURL('image/png')
-
-  try {
-    await addDoc(collection(db, 'canvas_images'), {
-      data: dataURL,
-      timestamp: Date.now(),
-      email: user?.email,
-    })
-    toast.success('Image saved successfully!', {
-      autoClose: 3000,
-      position: 'bottom-left',
-      theme: 'colored',
-    })
-  } catch (error) {}
+const saveCanvasHandler = () => {
+  if (canvas.value) store.dispatch('saveImage', canvas.value)
 }
 
 const goToHome = () => {
   router.push('/mini-paint/')
 }
+
+onMounted(() => {
+  updateCanvasSize()
+
+  if (canvas.value) {
+    canvas.value.addEventListener('mousedown', (e) => startDrawing(e))
+    canvas.value.addEventListener('mousemove', (e) => draw(e))
+    canvas.value.addEventListener('mouseup', stopDrawing)
+  }
+  window.addEventListener('resize', updateCanvasSize)
+})
+
+onBeforeUnmount(() => {
+  if (canvas.value) {
+    canvas.value.removeEventListener('mousedown', (e) => startDrawing(e))
+    canvas.value.removeEventListener('mousemove', (e) => draw(e))
+    canvas.value.removeEventListener('mouseup', stopDrawing)
+  }
+
+  window.removeEventListener('resize', updateCanvasSize)
+})
 </script>
 
 <template>
   <Onboarding page="editor" :steps="stepsEditorOnboarding" />
   <div class="editor">
     <div class="editor__toolbar">
-      <button @click="setTool('brush')" class="editor__button brush">
+      <BaseButton
+        variant="icon"
+        @click="setTool('brush')"
+        class="editor__button brush"
+      >
         <img src="../assets/brush.svg" alt="brush" class="editor__icon" />
-      </button>
-      <button @click="setTool('line')" class="editor__button line">
-        <img src="../assets/line.svg" alt="line" class="editor__icon" />
-      </button>
-      <button @click="setTool('square')" class="editor__button square">
-        <img src="../assets/square.svg" alt="triangle" class="editor__icon" />
-      </button>
-      <button @click="setTool('circle')" class="editor__button circle">
-        <img src="../assets/circle.svg" alt="circle" class="editor__icon" />
-      </button>
-      <button @click="setTool('polygon')" class="editor__button polygon">
-        <img src="../assets/polygon.svg" alt="polygon" class="editor__icon" />
-      </button>
-      <button @click="setTool('star')" class="editor__button star">
-        <img src="../assets/star.svg" alt="star" class="editor__icon" />
-      </button>
+      </BaseButton>
 
+      <BaseButton
+        variant="icon"
+        @click="setTool('line')"
+        class="editor__button line"
+      >
+        <img src="../assets/line.svg" alt="line" class="editor__icon" />
+      </BaseButton>
+
+      <BaseButton
+        variant="icon"
+        @click="setTool('square')"
+        class="editor__button square"
+      >
+        <img src="../assets/square.svg" alt="triangle" class="editor__icon" />
+      </BaseButton>
+      <BaseButton
+        variant="icon"
+        @click="setTool('circle')"
+        class="editor__button circle"
+      >
+        <img src="../assets/circle.svg" alt="circle" class="editor__icon" />
+      </BaseButton>
+
+      <BaseButton
+        variant="icon"
+        @click="setTool('polygon')"
+        class="editor__button polygon"
+      >
+        <img src="../assets/polygon.svg" alt="polygon" class="editor__icon" />
+      </BaseButton>
+
+      <BaseButton
+        variant="icon"
+        @click="setTool('star')"
+        class="editor__button star"
+      >
+        <img src="../assets/star.svg" alt="star" class="editor__icon" />
+      </BaseButton>
       <label>
         Width:
         <BaseInput
@@ -265,15 +123,21 @@ const goToHome = () => {
         class="editor__color"
       ></BaseInput>
 
-      <button @click="clearCanvas" class="editor__button clean">
-        <img src="../assets/clean.svg" alt="clean" class="editor__icon" />
-      </button>
-      <button class="editor__button save" @click="saveCanvasToFirebase">
-        <img src="../assets/save.svg" alt="save" class="editor__icon" />
-      </button>
-      <button class="editor__button back" @click="goToHome">
-        <img src="../assets/back.svg" alt="back" class="editor__icon back" />
-      </button>
+      <BaseButton
+        variant="icon"
+        class="editor__button clean"
+        @click="clearCanvasHandler"
+        ><img src="../assets/clean.svg" alt="clean" class="editor__icon"
+      /></BaseButton>
+      <BaseButton
+        variant="icon"
+        class="editor__button save"
+        @click="saveCanvasHandler"
+        ><img src="../assets/save.svg" alt="save" class="editor__icon"
+      /></BaseButton>
+      <BaseButton variant="icon" class="editor__button back" @click="goToHome"
+        ><img src="../assets/back.svg" alt="back" class="editor__icon back"
+      /></BaseButton>
     </div>
     <div class="editor__field">
       <canvas ref="canvas" class="editor__canvas"></canvas>

@@ -18,10 +18,10 @@ const handleNextPage = () => {
 <template>
   <div class="menu__pagination" v-if="store.getters.totalPages">
     <BaseButton
-      :button-width="10"
-      :button-padding="5"
+      variant="icon"
       @click="handlePreviousPage"
       :disabled="store.state.currentPage === 1"
+      class="menu__pagination-button"
     >
       <img
         src="../assets/left-arrow.svg"
@@ -29,15 +29,17 @@ const handleNextPage = () => {
         class="menu__pagination-icon"
       />
     </BaseButton>
+
     <span
       >Page {{ store.state.currentPage }} of
       {{ store.getters.totalPages }}</span
     >
+
     <BaseButton
-      :button-width="10"
-      :button-padding="5"
+      variant="icon"
       @click="handleNextPage"
       :disabled="store.state.currentPage === store.getters.totalPages"
+      class="menu__pagination-button"
     >
       <img
         src="../assets/right-arrow.svg"
@@ -60,5 +62,8 @@ const handleNextPage = () => {
 .menu__pagination-icon {
   width: 15px;
   height: 15px;
+}
+.menu__pagination-button {
+  padding: 7px 30px;
 }
 </style>

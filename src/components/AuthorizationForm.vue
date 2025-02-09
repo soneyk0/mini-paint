@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { ref } from 'vue'
 import router from '../appRoutes/router.ts'
 import { toast } from 'vue3-toastify'
@@ -7,19 +6,20 @@ import 'vue3-toastify/dist/index.css'
 import BaseForm from '../common/BaseForm.vue'
 import BaseButton from '../common/BaseButton.vue'
 import BaseInput from '../common/BaseInput.vue'
+import store from '../store.ts'
 
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 
 function signIn() {
-  const auth = getAuth()
-  signInWithEmailAndPassword(auth, email.value, password.value)
+  store
+    .dispatch('login', { email: email.value, password: password.value })
     .then(() => {
       router.push('/mini-paint/')
     })
-    .catch(() => {
-      toast.error('Incorrect email or password', {
+    .catch((error) => {
+      toast.error(error.message, {
         autoClose: 3000,
         position: 'bottom-left',
         theme: 'colored',
@@ -53,8 +53,7 @@ function signIn() {
     <template #footer>
       <BaseButton
         :button-text="'Sign in'"
-        :button-width="100"
-        :button-padding="15"
+        variant="primary"
         class="auth-form__button"
       />
       <p class="auth-form__infoText">

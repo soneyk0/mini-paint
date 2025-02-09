@@ -1,33 +1,14 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { db } from '../main.ts'
-import { collection, query, getDocs } from 'firebase/firestore'
 import Onboarding from './Onboarding.vue'
 import { stepsHomePageOnboarding } from '../stepsStore/stepsStore.ts'
-import { useStore } from 'vuex'
 import Paginator from './Paginator.vue'
 import Gallery from './Gallery.vue'
 import Header from './Header.vue'
-
-const store = useStore()
+import store from '../store.ts'
 
 onMounted(async () => {
-  const q = query(collection(db, 'canvas_images'))
-  const querySnapshot = await getDocs(q)
-  const emailSet = new Set<string>()
-
-  const images = querySnapshot.docs
-    .map((doc) => {
-      const data = doc.data()
-      if (data.email) {
-        emailSet.add(data.email)
-      }
-      return { data: data.data, email: data.email, timestamp: data.timestamp }
-    })
-    .sort((a, b) => b.timestamp - a.timestamp)
-
-  store.commit('setImages', images)
-  store.commit('setUsersEmail', Array.from(emailSet))
+  store.dispatch('loadImages')
   document.body.addEventListener('click', handleClickOutside)
 })
 

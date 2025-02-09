@@ -2,11 +2,11 @@
 import { ref } from 'vue'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import router from '../appRoutes/router.js'
 import BaseForm from '../common/BaseForm.vue'
 import BaseButton from '../common/BaseButton.vue'
 import BaseInput from '../common/BaseInput.vue'
+import store from '../store.ts'
 
 const email = ref('')
 const password = ref('')
@@ -15,10 +15,12 @@ const errorMessage = ref()
 
 function register() {
   if (password.value !== confirmPassword.value) {
-    errorMessage.value = 'Passwords miss match'
+    errorMessage.value = 'Passwords do not match'
     return
   }
-  createUserWithEmailAndPassword(getAuth(), email.value, password.value)
+
+  store
+    .dispatch('register', { email: email.value, password: password.value })
     .then(() => {
       router.push('/mini-paint')
     })
@@ -86,15 +88,14 @@ function register() {
     <template #footer>
       <BaseButton
         :button-text="'Sing up'"
-        :button-width="100"
-        :button-padding="15"
+        variant="primary"
         class="register-form__button"
       />
       <p class="register-form__infoText">
         Already have an account?
         <router-link to="/mini-paint/login" class="register-form__link"
-          >Sing in</router-link
-        >
+          >Sing in
+        </router-link>
       </p>
     </template>
   </BaseForm>

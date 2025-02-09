@@ -1,4 +1,4 @@
-import type { Step } from '../components/Onboarding.vue'
+import type { Step } from '../composables/useOnboardingSteps.ts'
 
 export const stepsEditorOnboarding: Step[] = [
   { element: '.brush', content: 'Brush.', tooltipPosition: 'right' },
